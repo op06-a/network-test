@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Контрольная: компьютерные сети</title>
+<style>
+  :root{
+    --bg:#f4f5f2; --card:#ffffff; --ink:#1b1f1d; --muted:#5d6762; --line:#d9ddd8;
+    --accent:#0f6b5c; --accent-ink:#ffffff; --accent-soft:#e3f1ed;
+    --warn:#b4471f; --saved:#1f8a4c; --saved-soft:#e2f4e8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{background:var(--bg);color:var(--ink);font:18px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+       -webkit-user-select:none;user-select:none}
+  input{-webkit-user-select:text;user-select:text}
+  .wrap{max-width:900px;margin:0 auto;padding:36px 24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:30px 34px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  h1{font-size:28px;margin:0 0 6px;letter-spacing:-.01em}
+  h2{font-size:22px;margin:0 0 16px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  label{display:block;font-weight:600;margin:16px 0 6px;font-size:16px}
+  input[type=text],input[type=password]{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 22px;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+  button:disabled{opacity:.4;cursor:default}
+  button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-weight:500}
+  button.submit{background:var(--ink)}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}
+  .spacer{flex:1}
+  .err{color:var(--warn);font-size:15px;min-height:22px;margin-top:8px}
+  .hidden{display:none!important}
+
+  /* навигация */
+  .head{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+  .head .count{color:var(--muted);font-size:16px}
+  .nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px;margin-bottom:22px}
+  .nav button{padding:0;height:44px;border-radius:8px;background:#fff;color:var(--ink);border:1.5px solid var(--line);font-weight:600;font-size:16px}
+  .nav button.saved{background:var(--saved);border-color:var(--saved);color:#fff}
+  .nav button.cur{outline:3px solid var(--accent);outline-offset:2px}
+  .legend{display:flex;gap:18px;color:var(--muted);font-size:14px;margin:-12px 0 20px}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1.5px solid var(--line);background:#fff}
+  .legend i.s{background:var(--saved);border-color:var(--saved)}
+
+  .qn{color:var(--muted);font-size:15px;margin-bottom:6px}
+  .q{font-size:22px;font-weight:600;line-height:1.4;margin:0 0 22px}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;color:var(--ink);border:1.5px solid var(--line);
+       font-weight:500;padding:14px 16px;border-radius:10px}
+  .opt:hover{border-color:#9fb3ab}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .opt b{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--muted)}
+  .opt.sel b{background:var(--accent);border-color:var(--accent);color:#fff}
+  .status{font-size:15px;min-height:22px;margin-top:14px;color:var(--muted)}
+  .status.ok{color:var(--saved);font-weight:600}
+  .status.warn{color:var(--warn)}
+
+  /* окна */
+  .lock{position:fixed;inset:0;background:rgba(27,31,29,.92);display:grid;place-items:center;z-index:50;padding:24px}
+  .lock .card{max-width:520px;width:100%}
+  .lock.alarm .card{border-top:6px solid var(--warn)}
+  .lock.alarm h2{color:var(--warn)}
+
+  /* результат */
+  .grade{font-size:84px;font-weight:800;line-height:1;color:var(--accent);margin:8px 0}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 24px;margin:20px 0;font-size:17px}
+  .kv span:nth-child(odd){color:var(--muted)}
+  .code{font-family:Consolas,monospace;letter-spacing:.08em}
+  .viol{color:var(--warn);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:15px;margin-top:12px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  .teacherlink{position:fixed;right:14px;bottom:10px;font-size:13px;color:var(--muted);background:none;border:0;padding:4px;font-weight:400;opacity:.6}
+</style>
+</head>
+<body oncontextmenu="return false">
+
+<!-- Старт -->
+<div id="scr-start" class="wrap">
+  <div class="card">
+    <h1>Контрольная работа</h1>
+    <label for="f-name">Фамилия и имя</label>
+    <input id="f-name" type="text" autocomplete="off" spellcheck="false">
+    <label for="f-group">Группа</label>
+    <input id="f-group" type="text" autocomplete="off" spellcheck="false">
+    <div class="err" id="start-err"></div>
+    <div class="row"><button id="btn-start">Начать тест</button></div>
+  </div>
+</div>
+
+<!-- Тест -->
+<div id="scr-test" class="wrap hidden">
+  <div class="head">
+    <span class="count" id="t-count"></span>
+    <span class="spacer"></span>
+    <button class="submit" id="btn-submit">Сдать работу</button>
+  </div>
+  <div class="nav" id="t-nav"></div>
+  <div class="legend"><span><i></i>нет ответа</span><span><i class="s"></i>ответ сохранён</span></div>
+  <div class="card">
+    <div class="qn" id="t-num"></div>
+    <p class="q" id="t-q"></p>
+    <div class="opts" id="t-opts"></div>
+    <div class="status" id="t-status"></div>
+    <div class="row">
+      <button class="ghost" id="btn-prev">← Назад</button>
+      <button id="btn-save" disabled>Сохранить ответ</button>
+      <button class="ghost" id="btn-nextq">Далее →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Результат -->
+<div id="scr-result" class="wrap hidden">
+  <div class="card">
+    <h1>Работа сдана</h1>
+    <p class="sub" id="res-who"></p>
+    <div style="color:var(--muted)">Оценка</div>
+    <div class="grade" id="res-grade"></div>
+    <div class="kv" id="res-kv"></div>
+    <p class="sub" style="margin:0">Не закрывайте это окно: покажите результат преподавателю.</p>
+    <div class="row">
+      <button id="btn-file">Сохранить результат в файл</button>
+      <button class="ghost" id="btn-next">Следующий студент (для преподавателя)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Журнал преподавателя -->
+<div id="scr-journal" class="wrap hidden">
+  <div class="card">
+    <h1>Результаты на этом компьютере</h1>
+    <p class="sub">Хранятся в браузере этого компьютера.</p>
+    <div id="j-table"></div>
+    <div class="row">
+      <button id="j-csv">Скачать таблицу (CSV для Excel)</button>
+      <button class="ghost" id="j-clear">Очистить журнал</button>
+      <button class="ghost" id="j-back">Назад</button>
+    </div>
+  </div>
+</div>
+
+<button class="teacherlink" id="btn-journal">Преподаватель</button>
+
+<!-- Подтверждение сдачи -->
+<div id="confirm" class="lock hidden">
+  <div class="card">
+    <h2>Сдать работу?</h2>
+    <p id="confirm-text"></p>
+    <div class="row"><button class="submit" id="confirm-yes">Сдать</button><button class="ghost" id="confirm-no">Вернуться к тесту</button></div>
+  </div>
+</div>
+
+<!-- Блокировка / пароль -->
+<div id="lock" class="lock hidden">
+  <div class="card">
+    <h2 id="lock-title"></h2>
+    <p id="lock-text"></p>
+    <label for="lock-pass">Пароль преподавателя</label>
+    <input id="lock-pass" type="password" autocomplete="off">
+    <div class="err" id="lock-err"></div>
+    <div class="row"><button id="lock-ok">Продолжить</button><button class="ghost hidden" id="lock-cancel">Отмена</button></div>
+  </div>
+</div>
+
+<script>
+/* ===================== НАСТРОЙКИ ===================== */
+var CONFIG = {
+  MAX_VIOLATIONS: 3,      // после стольких выходов из окна работа сдаётся автоматически (0 = без ограничения)
+  GRADES: [               // процент верных ответов -> оценка
+    { min: 85, grade: 5 },
+    { min: 70, grade: 4 },
+    { min: 50, grade: 3 },
+    { min: 0,  grade: 2 }
+  ]
+};
+/* ===================================================== */
+
+var DATA = [{"t":"c","q":"Что такое компьютерная сеть?","o":["Совокупность компьютеров и других устройств, соединённых каналами связи для обмена данными и совместного использования ресурсов","Набор программ, установленных на одном компьютере для работы с интернетом","Устройство, которое соединяет компьютер с сетью провайдера","Способ хранения данных на нескольких жёстких дисках одного компьютера"],"a":"fg=="},{"t":"c","q":"Что такое сетевое устройство?","o":["Устройство, которое обеспечивает соединение узлов сети и передачу данных между ними","Любое устройство, подключённое к компьютеру через порт USB","Программа, которая открывает веб-страницы","Устройство для хранения резервных копий данных"],"a":"fg=="},{"t":"c","q":"Чем коммутатор отличается от маршрутизатора?","o":["Коммутатор соединяет устройства внутри одной сети и передаёт кадры по MAC-адресам, маршрутизатор соединяет разные сети и передаёт пакеты по IP-адресам","Коммутатор соединяет разные сети по IP-адресам, маршрутизатор соединяет устройства внутри одной сети по MAC-адресам","Коммутатор выдаёт IP-адреса устройствам, маршрутизатор усиливает сигнал в кабеле","Коммутатор и маршрутизатор работают одинаково и отличаются только количеством портов"],"a":"fg=="},{"t":"c","q":"Что такое модель OSI и зачем она нужна?","o":["Эталонная модель, которая делит процесс сетевого взаимодействия на уровни, чтобы оборудование и программы разных производителей могли работать вместе","Протокол, по которому передаются веб-страницы в интернете","Операционная система для сетевого оборудования Cisco","Стандарт обжима кабеля витая пара"],"a":"fg=="},{"t":"c","q":"Сколько уровней в модели OSI и в модели TCP/IP?","o":["OSI — 7 уровней, TCP/IP — 4 уровня","OSI — 4 уровня, TCP/IP — 7 уровней","OSI — 5 уровней, TCP/IP — 3 уровня","OSI — 7 уровней, TCP/IP — 7 уровней"],"a":"fg=="},{"t":"c","q":"Какой порядок уровней модели OSI правильный (с 1-го по 7-й)?","o":["Физический, канальный, сетевой, транспортный, сеансовый, представления, прикладной","Физический, сетевой, канальный, транспортный, представления, сеансовый, прикладной","Физический, канальный, транспортный, сетевой, сеансовый, представления, прикладной","Канальный, физический, транспортный, сетевой, сеансовый, прикладной, представления"],"a":"fg=="},{"t":"c","q":"Что такое инкапсуляция данных?","o":["Добавление к данным служебной информации (заголовков) каждого уровня при передаче сверху вниз по модели","Шифрование данных перед отправкой в сеть","Сжатие данных для уменьшения объёма передачи","Разделение сети на несколько подсетей"],"a":"fg=="},{"t":"c","q":"Что такое TTL в IP-пакете и зачем оно нужно?","o":["Счётчик, который уменьшается на каждом маршрутизаторе; при значении 0 пакет уничтожается, чтобы он не «ходил по кругу»","Время, за которое пакет должен дойти до получателя, иначе он отправляется повторно","Номер пакета в последовательности передаваемых данных","Размер пакета в байтах"],"a":"fg=="},{"t":"c","q":"Что такое IP-адрес и из каких частей он состоит?","o":["Логический адрес узла в сети; состоит из адреса сети и адреса узла","Физический адрес сетевой карты; состоит из кода производителя и серийного номера","Имя компьютера в сети; состоит из имени домена и имени узла","Номер порта приложения; состоит из номера протокола и номера сеанса"],"a":"fg=="},{"t":"c","q":"Чем MAC-адрес отличается от IP-адреса?","o":["MAC-адрес — физический адрес сетевого интерфейса (канальный уровень), IP-адрес — логический адрес узла (сетевой уровень)","MAC-адрес назначается администратором вручную, а IP-адрес «зашит» в сетевую карту производителем","MAC-адрес используется только в интернете, а IP-адрес — только в локальной сети","MAC-адрес и IP-адрес — одно и то же, записанное в разных системах счисления"],"a":"fg=="},{"t":"c","q":"Что такое маска подсети и для чего она нужна?","o":["Число, которое показывает, какая часть IP-адреса относится к сети, а какая — к узлу","Адрес маршрутизатора, через который узел выходит в другие сети","Пароль для доступа к подсети","Список запрещённых в подсети IP-адресов"],"a":"fg=="},{"t":"c","q":"Что такое адрес сети и широковещательный адрес?","o":["Адрес сети — первый адрес диапазона, обозначает саму сеть; широковещательный — последний, на него отправляют данные всем узлам сети","Адрес сети — адрес маршрутизатора; широковещательный — адрес DNS-сервера","Адрес сети — последний адрес диапазона; широковещательный — первый","Адрес сети и широковещательный адрес можно назначать обычным компьютерам"],"a":"fg=="},{"t":"c","q":"Что такое шлюз по умолчанию?","o":["Адрес маршрутизатора, на который узел отправляет пакеты, предназначенные для других сетей","Адрес DNS-сервера, который преобразует имена в IP-адреса","Первый компьютер, включённый в сеть","Порт коммутатора, к которому подключён компьютер"],"a":"fg=="},{"t":"c","q":"Что такое VLAN и зачем она нужна?","o":["Виртуальная локальная сеть: логическое разделение одного коммутатора на несколько изолированных сетей","Беспроводная локальная сеть, работающая по Wi-Fi","Защищённое подключение к сети через интернет","Сеть, объединяющая несколько городов"],"a":"fg=="},{"t":"c","q":"Чем порт access отличается от порта trunk?","o":["Порт access принадлежит одной VLAN, порт trunk передаёт трафик нескольких VLAN с тегами","Порт access передаёт трафик нескольких VLAN, порт trunk — только одной","Порт access используется для подключения маршрутизаторов, trunk — только для компьютеров","Порт access работает быстрее, порт trunk — медленнее, других отличий нет"],"a":"fg=="},{"t":"c","q":"Для чего нужен протокол DHCP?","o":["Для автоматической выдачи узлам IP-адреса, маски, шлюза и DNS-сервера","Для преобразования доменных имён в IP-адреса","Для передачи веб-страниц","Для поиска MAC-адреса по IP-адресу"],"a":"fg=="},{"t":"c","q":"Как расшифровываются этапы процесса DORA при получении адреса по DHCP?","o":["Discover, Offer, Request, Acknowledge","Discover, Open, Reply, Accept","Data, Offer, Route, Address","Detect, Order, Request, Assign"],"a":"fg=="},{"t":"c","q":"Чем HTTP отличается от HTTPS?","o":["HTTPS — это HTTP с шифрованием (TLS), данные между браузером и сервером защищены","HTTPS работает быстрее, потому что не использует TCP","HTTP используется для отправки почты, HTTPS — для веб-страниц","Ничем, это два названия одного протокола"],"a":"fg=="},{"t":"c","q":"Что такое маршрутизация?","o":["Процесс выбора пути для передачи пакетов из одной сети в другую","Процесс выдачи IP-адресов узлам сети","Передача кадров между портами коммутатора внутри одной сети","Шифрование данных при передаче через интернет"],"a":"fg=="},{"t":"c","q":"Чем статическая маршрутизация отличается от динамической?","o":["Статические маршруты задаёт администратор вручную, динамические маршрутизаторы получают автоматически с помощью протоколов маршрутизации","Статическая маршрутизация используется только в интернете, динамическая — только в локальных сетях","Статические маршруты сами меняются при обрыве канала, динамические — нет","Динамическая маршрутизация работает без маршрутизаторов"],"a":"fg=="},{"t":"c","q":"Что такое автономная система (автономная область)?","o":["Группа сетей и маршрутизаторов под единым управлением с общей политикой маршрутизации","Компьютер, который работает без подключения к сети","Сеть, в которой все адреса выдаются вручную","Отдельная VLAN на коммутаторе"],"a":"fg=="},{"t":"c","q":"Что такое внутренняя и внешняя маршрутизация?","o":["Внутренняя — маршрутизация внутри одной автономной системы (например, OSPF), внешняя — между автономными системами (например, BGP)","Внутренняя — маршрутизация между VLAN, внешняя — маршрутизация в интернет через NAT","Внутренняя — статическая маршрутизация, внешняя — динамическая","Внутренняя — внутри коммутатора, внешняя — внутри маршрутизатора"],"a":"fg=="},{"t":"c","q":"Что такое SSH и чем он лучше Telnet?","o":["Протокол удалённого управления устройством; в отличие от Telnet, шифрует передаваемые данные, включая пароли","Протокол передачи файлов; работает быстрее Telnet","Протокол удалённого управления; в отличие от Telnet, не требует пароля","Протокол выдачи IP-адресов; заменил Telnet в современных сетях"],"a":"fg=="},{"t":"c","q":"Что такое NAT и зачем он нужен?","o":["Трансляция сетевых адресов: замена частных IP-адресов на публичные, чтобы узлы локальной сети могли выходить в интернет","Протокол автоматической выдачи IP-адресов в локальной сети","Технология разделения коммутатора на виртуальные сети","Протокол динамической маршрутизации между автономными системами"],"a":"fg=="},{"t":"c","q":"Что такое список контроля доступа (ACL)?","o":["Набор правил на маршрутизаторе, которые разрешают или запрещают прохождение трафика","Список пользователей, которым разрешено входить в операционную систему","Таблица соответствия IP-адресов и MAC-адресов","Список доступных VLAN на коммутаторе"],"a":"fg=="}];
+var PASS_HASH = "74wwrafocw";
+var KEY = "N7q#pX9!vL2zR4";
+var STORE = "netquiz_state_v2", JOURNAL = "netquiz_journal_v1";
+
+function h53(str, seed){var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(var i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
+function checkPass(p){return h53("nq:"+p,7)===PASS_HASH;}
+function dec(s){var b=atob(s),out=new Uint8Array(b.length);for(var i=0;i<b.length;i++)out[i]=b.charCodeAt(i)^KEY.charCodeAt(i%KEY.length);return new TextDecoder().decode(out);}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function $(id){return document.getElementById(id);}
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function del(k){try{localStorage.removeItem(k);}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+
+var S = null, selected = null, lastViol = 0, lockMode = null;
+
+function show(id){["scr-start","scr-test","scr-result","scr-journal"].forEach(function(x){$(x).classList.toggle("hidden",x!==id);});
+  $("btn-journal").classList.toggle("hidden",id==="scr-test");}
+function persist(){save(STORE,S);}
+
+/* ---------- старт ---------- */
+$("btn-start").onclick = function(){
+  var name=$("f-name").value.trim(), group=$("f-group").value.trim();
+  if(name.split(/\s+/).length<2){$("start-err").textContent="Укажите фамилию и имя.";return;}
+  if(!group){$("start-err").textContent="Укажите группу.";return;}
+  var order = shuffle(DATA.map(function(_,i){return i;}));
+  S = { name:name, group:group, order:order, opt:{}, cur:0, answers:{}, viol:[], started:Date.now(), status:"running" };
+  order.forEach(function(qi){ S.opt[qi]=shuffle(DATA[qi].o.map(function(_,k){return k;})); });
+  persist(); lastViol=Date.now();
+  goFull(); show("scr-test"); renderQ();
+};
+function goFull(){var el=document.documentElement;try{var p=(el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el);if(p&&p.catch)p.catch(function(){});}catch(e){}}
+function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
+
+/* ---------- вопросы и навигация ---------- */
+function savedCount(){var n=0;for(var k in S.answers)n++;return n;}
+function renderNav(){
+  var nav=$("t-nav"); nav.innerHTML="";
+  S.order.forEach(function(qi,pos){
+    var b=document.createElement("button");
+    b.textContent=pos+1;
+    if(S.answers[qi]!==undefined) b.classList.add("saved");
+    if(pos===S.cur) b.classList.add("cur");
+    b.onclick=function(){goTo(pos);};
+    nav.appendChild(b);
+  });
+  $("t-count").textContent="Вопросов: "+S.order.length+" · сохранено ответов: "+savedCount();
+}
+function goTo(pos){ if(pos<0||pos>=S.order.length)return; S.cur=pos; persist(); renderQ(); }
+function renderQ(){
+  var qi=S.order[S.cur], q=DATA[qi], saved=S.answers[qi];
+  selected = saved!==undefined ? saved : null;
+  $("t-num").textContent="Вопрос "+(S.cur+1)+" из "+S.order.length;
+  $("t-q").textContent=q.q;
+  var box=$("t-opts"); box.innerHTML="";
+  S.opt[qi].forEach(function(oi,k){
+    var b=document.createElement("button"); b.className="opt"+(selected===oi?" sel":"");
+    b.innerHTML="<b>"+"АБВГДЕ"[k]+"</b><span>"+esc(q.o[oi])+"</span>";
+    b.onclick=function(){selected=oi;[].forEach.call(box.children,function(c){c.classList.remove("sel");});b.classList.add("sel");updateStatus();};
+    box.appendChild(b);
+  });
+  $("btn-prev").disabled = S.cur===0;
+  $("btn-nextq").disabled = S.cur===S.order.length-1;
+  renderNav(); updateStatus();
+}
+function updateStatus(){
+  var qi=S.order[S.cur], saved=S.answers[qi], st=$("t-status");
+  if(saved!==undefined && selected===saved){st.textContent="✓ Ответ сохранён";st.className="status ok";$("btn-save").disabled=true;}
+  else if(selected!==null){st.textContent= saved!==undefined ? "Ответ изменён, но ещё не сохранён" : "Ответ выбран, но ещё не сохранён";st.className="status warn";$("btn-save").disabled=false;}
+  else {st.textContent="";st.className="status";$("btn-save").disabled=true;}
+}
+$("btn-save").onclick=function(){
+  if(selected===null)return;
+  S.answers[S.order[S.cur]]=selected; persist();
+  // переход к следующему вопросу без сохранённого ответа
+  var n=S.order.length;
+  for(var step=1;step<n;step++){var p=(S.cur+step)%n; if(S.answers[S.order[p]]===undefined){goTo(p);return;}}
+  renderQ();
+};
+$("btn-prev").onclick=function(){goTo(S.cur-1);};
+$("btn-nextq").onclick=function(){goTo(S.cur+1);};
+
+/* ---------- сдача ---------- */
+$("btn-submit").onclick=function(){
+  var left=S.order.length-savedCount();
+  $("confirm-text").innerHTML = left>0
+    ? "Без сохранённого ответа осталось вопросов: <b>"+left+"</b>. Они будут засчитаны как неверные.<br>После сдачи изменить ответы нельзя."
+    : "Ответы сохранены на все вопросы. После сдачи изменить ответы нельзя.";
+  S.status="confirm"; $("confirm").classList.remove("hidden");
+};
+$("confirm-no").onclick=function(){ $("confirm").classList.add("hidden"); S.status="running"; lastViol=Date.now(); };
+$("confirm-yes").onclick=function(){ $("confirm").classList.add("hidden"); finish(false); };
+
+/* ---------- контроль ухода ---------- */
+function violation(type){
+  if(!S||(S.status!=="running"&&S.status!=="confirm"))return;
+  var now=Date.now(); if(now-lastViol<1500)return; lastViol=now;
+  $("confirm").classList.add("hidden");
+  S.viol.push({t:now,type:type});
+  if(CONFIG.MAX_VIOLATIONS>0 && S.viol.length>=CONFIG.MAX_VIOLATIONS){ finish(true); return; }
+  S.status="locked"; persist();
+  openLock("violation");
+}
+document.addEventListener("visibilitychange",function(){if(document.hidden)violation("Переход в другое окно/вкладку");});
+window.addEventListener("blur",function(){violation("Окно теста потеряло фокус");});
+function onFs(){ if(S&&(S.status==="running"||S.status==="confirm")&&!isFull()) violation("Выход из полноэкранного режима"); }
+document.addEventListener("fullscreenchange",onFs); document.addEventListener("webkitfullscreenchange",onFs);
+function active(){return S&&(S.status==="running"||S.status==="confirm"||S.status==="locked");}
+document.addEventListener("keydown",function(e){
+  var k=(e.key||"").toLowerCase();
+  var dev = e.key==="F12" || (e.ctrlKey&&e.shiftKey&&["i","j","c","ш","о","с"].indexOf(k)>=0) || (e.ctrlKey&&(k==="u"||k==="г"));
+  if(dev){e.preventDefault(); violation("Попытка открыть инструменты разработчика");}
+  if(active()&&e.ctrlKey&&["c","v","x","p","s","f","с","м","ч","з","ы","а"].indexOf(k)>=0){e.preventDefault();}
+  if(active()&&(e.key==="F5"||(e.ctrlKey&&(k==="r"||k==="к")))){e.preventDefault();}
+});
+["copy","cut","paste","selectstart","dragstart"].forEach(function(ev){document.addEventListener(ev,function(e){if(active()&&e.target.tagName!=="INPUT")e.preventDefault();});});
+window.addEventListener("beforeunload",function(e){if(active()){e.preventDefault();e.returnValue="";}});
+
+/* ---------- окно пароля ---------- */
+function openLock(mode){
+  lockMode=mode;
+  $("lock-pass").value=""; $("lock-err").textContent="";
+  var alarm = mode==="violation"||mode==="reload";
+  $("lock").classList.toggle("alarm",alarm);
+  $("lock-cancel").classList.toggle("hidden",alarm);
+  if(alarm){
+    $("lock-title").textContent="Тест заблокирован";
+    var last=S.viol[S.viol.length-1];
+    $("lock-text").innerHTML=(mode==="reload"?"Страница теста была перезагружена или закрыта.":"Зафиксирован выход из окна теста: <b>"+esc(last.type)+"</b>.")+
+      "<br>Нарушений: "+S.viol.length+(CONFIG.MAX_VIOLATIONS>0?(" из "+CONFIG.MAX_VIOLATIONS+". При достижении лимита работа будет сдана автоматически."):".")+
+      "<br>Позовите преподавателя.";
+  } else {
+    $("lock-title").textContent= mode==="next" ? "Новая попытка" : "Вход преподавателя";
+    $("lock-text").textContent= mode==="next" ? "Результат сохранён в журнале. Введите пароль, чтобы подготовить тест для следующего студента." : "Введите пароль, чтобы открыть журнал результатов.";
+  }
+  $("lock").classList.remove("hidden");
+  setTimeout(function(){$("lock-pass").focus();},50);
+}
+$("lock-pass").onkeydown=function(e){if(e.key==="Enter")$("lock-ok").click();};
+$("lock-cancel").onclick=function(){$("lock").classList.add("hidden");};
+$("lock-ok").onclick=function(){
+  if(!checkPass($("lock-pass").value)){$("lock-err").textContent="Неверный пароль."; return;}
+  $("lock").classList.add("hidden");
+  if(lockMode==="violation"||lockMode==="reload"){
+    S.status="running"; persist(); goFull(); lastViol=Date.now();
+    show("scr-test"); renderQ();
+  } else if(lockMode==="next"){
+    del(STORE); S=null; $("f-name").value=""; $("f-group").value=""; $("start-err").textContent=""; show("scr-start");
+  } else if(lockMode==="journal"){
+    renderJournal(); show("scr-journal");
+  }
+};
+
+/* ---------- итог ---------- */
+function score(){var ok=0;S.order.forEach(function(qi){var a=S.answers[qi];if(a!==undefined&&String(a)===dec(DATA[qi].a))ok++;});return ok;}
+function gradeOf(p){for(var i=0;i<CONFIG.GRADES.length;i++)if(p>=CONFIG.GRADES[i].min)return CONFIG.GRADES[i].grade;return 2;}
+function finish(auto){
+  var ok=score(), n=S.order.length, pct=Math.round(ok/n*100), g=gradeOf(pct);
+  var res={name:S.name,group:S.group,ok:ok,n:n,answered:savedCount(),pct:pct,grade:g,viol:S.viol.length,auto:!!auto,
+           violList:S.viol.map(function(v){return fmtTime(v.t)+" — "+v.type;}),
+           date:new Date().toLocaleString("ru-RU"),mins:Math.max(1,Math.round((Date.now()-S.started)/60000))};
+  res.code=h53([res.name,res.group,res.ok,res.n,res.viol,res.date].join("|"),31).slice(0,6).toUpperCase();
+  var j=load(JOURNAL,[]); j.push(res); save(JOURNAL,j);
+  S.status="done"; S.result=res; persist();
+  if(document.exitFullscreen&&isFull()){try{document.exitFullscreen();}catch(e){}}
+  showResult(res);
+}
+function showResult(r){
+  $("res-who").textContent=r.name+" · "+r.group;
+  $("res-grade").textContent=r.grade;
+  var html="<span>Верных ответов</span><span><b>"+r.ok+" из "+r.n+"</b> ("+r.pct+"%)</span>"+
+    "<span>Отвечено вопросов</span><span>"+r.answered+" из "+r.n+"</span>"+
+    "<span>Нарушений</span><span class='"+(r.viol?"viol":"")+"'>"+r.viol+(r.auto?" — работа сдана автоматически":"")+"</span>";
+  if(r.violList.length) html+="<span></span><span style='font-size:15px;color:var(--muted)'>"+r.violList.map(esc).join("<br>")+"</span>";
+  html+="<span>Время</span><span>"+r.mins+" мин · "+esc(r.date)+"</span><span>Контрольный код</span><span class='code'>"+r.code+"</span>";
+  $("res-kv").innerHTML=html;
+  show("scr-result");
+}
+$("btn-file").onclick=function(){
+  var r=S.result;
+  var txt="Контрольная работа: компьютерные сети\r\nСтудент: "+r.name+"\r\nГруппа: "+r.group+"\r\nДата: "+r.date+
+    "\r\nВерных ответов: "+r.ok+" из "+r.n+" ("+r.pct+"%)\r\nОтвечено: "+r.answered+" из "+r.n+"\r\nОценка: "+r.grade+
+    "\r\nНарушений: "+r.viol+(r.auto?" (работа сдана автоматически)":"")+
+    (r.violList.length?"\r\n  "+r.violList.join("\r\n  "):"")+"\r\nКонтрольный код: "+r.code+"\r\n";
+  download(r.name.replace(/\s+/g,"_")+"_"+r.group.replace(/\s+/g,"")+"_результат.txt","﻿"+txt,"text/plain");
+};
+$("btn-next").onclick=function(){openLock("next");};
+
+/* ---------- журнал ---------- */
+$("btn-journal").onclick=function(){ if(active())return; openLock("journal"); };
+function renderJournal(){
+  var j=load(JOURNAL,[]);
+  if(!j.length){$("j-table").innerHTML="<p class='sub'>Пока нет результатов.</p>";return;}
+  var h="<table><tr><th>Студент</th><th>Группа</th><th>Верно</th><th>%</th><th>Оценка</th><th>Нарушения</th><th>Код</th></tr>";
+  j.forEach(function(r){h+="<tr><td>"+esc(r.name)+"</td><td>"+esc(r.group)+"</td><td>"+r.ok+"/"+r.n+"</td><td>"+r.pct+"</td><td><b>"+r.grade+"</b></td><td"+(r.viol?" class='viol'":"")+">"+r.viol+"</td><td class='code'>"+r.code+"</td></tr>";});
+  $("j-table").innerHTML=h+"</table>";
+}
+$("j-csv").onclick=function(){
+  var j=load(JOURNAL,[]), rows=[["Студент","Группа","Верно","Всего","Процент","Оценка","Нарушения","Дата","Код"]];
+  j.forEach(function(r){rows.push([r.name,r.group,r.ok,r.n,r.pct,r.grade,r.viol,r.date,r.code]);});
+  download("результаты_теста.csv","﻿"+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(";");}).join("\r\n"),"text/csv");
+};
+$("j-clear").onclick=function(){ if(confirm("Удалить все результаты с этого компьютера?")){del(JOURNAL);renderJournal();} };
+$("j-back").onclick=function(){ if(S&&S.status==="done")showResult(S.result); else show("scr-start"); };
+
+function download(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type+";charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();},500);}
+
+/* ---------- восстановление после перезагрузки ---------- */
+(function(){
+  var st=load(STORE,null);
+  if(!st)return;
+  S=st;
+  if(S.status==="done"){showResult(S.result);return;}
+  show("scr-test"); renderQ();
+  if(S.status!=="locked"){
+    S.viol.push({t:Date.now(),type:"Перезагрузка или закрытие страницы"});
+    if(CONFIG.MAX_VIOLATIONS>0&&S.viol.length>=CONFIG.MAX_VIOLATIONS){finish(true);return;}
+    S.status="locked"; persist();
+    openLock("reload");
+  } else openLock("violation");
+})();
+</script>
+</body>
+</html>
