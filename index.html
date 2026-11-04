@@ -167,11 +167,11 @@
 /* ===================== НАСТРОЙКИ ===================== */
 var CONFIG = {
   MAX_VIOLATIONS: 3,      // после стольких выходов из окна работа сдаётся автоматически (0 = без ограничения)
-  GRADES: [               // число верных ответов -> оценка
-    { min: 20, grade: 5 },  // 20–25
-    { min: 14, grade: 4 },  // 14–19
-    { min: 5,  grade: 3 },  // 5–13
-    { min: 0,  grade: 2 }   // 0–4
+  GRADES: [               // процент верных ответов -> оценка
+    { min: 85, grade: 5 },  // 22–25 верных из 25
+    { min: 70, grade: 4 },  // 18–21
+    { min: 50, grade: 3 },  // 13–17
+    { min: 0,  grade: 2 }   // 0–12
   ]
 };
 /* ===================================================== */
@@ -337,7 +337,7 @@ $("lock-ok").onclick=function(){
 function score(){var ok=0;S.order.forEach(function(qi){var a=S.answers[qi];if(a!==undefined&&String(a)===dec(DATA[qi].a))ok++;});return ok;}
 function gradeOf(p){for(var i=0;i<CONFIG.GRADES.length;i++)if(p>=CONFIG.GRADES[i].min)return CONFIG.GRADES[i].grade;return 2;}
 function finish(auto){
-  var ok=score(), n=S.order.length, pct=Math.round(ok/n*100), g=gradeOf(ok);
+  var ok=score(), n=S.order.length, pct=Math.round(ok/n*100), g=gradeOf(pct);
   var res={name:S.name,group:S.group,ok:ok,n:n,answered:savedCount(),pct:pct,grade:g,viol:S.viol.length,auto:!!auto,
            violList:S.viol.map(function(v){return fmtTime(v.t)+" — "+v.type;}),
            date:new Date().toLocaleString("ru-RU"),mins:Math.max(1,Math.round((Date.now()-S.started)/60000))};
